@@ -4,14 +4,34 @@ def load_custom_css():
     """Load custom CSS styles"""
     st.markdown("""
     <style>
-    /* Main container styling */
-    .main > div {
-        padding-top: 2rem;
+    :root {
+        --bg: #ffffff;
+        --bg2: #f8f9fa;
+        --text: #262730;
+        --muted: #666666;
+        --primary: #667eea;
+        --primary2: #764ba2;
+        --border: #e9ecef;
+        --card-shadow: rgba(0,0,0,0.08);
     }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #0e1117;
+            --bg2: #161a23;
+            --text: #e6e6e6;
+            --muted: #c2c7cf;
+            --primary: #8ea2ff;
+            --primary2: #9a7dff;
+            --border: #2b2f3a;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+    }
+
+    .main > div { padding-top: 2rem; }
 
     /* Header styling */
     .main-header {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary2) 100%);
         padding: 1rem;
         border-radius: 10px;
         margin-bottom: 2rem;
@@ -21,26 +41,26 @@ def load_custom_css():
 
     /* Song card styling */
     .song-card {
-        background: #f8f9fa;
+        background: var(--bg2);
         padding: 1.5rem;
         border-radius: 10px;
-        border-left: 4px solid #667eea;
+        border-left: 4px solid var(--primary);
         margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px var(--card-shadow);
     }
 
     /* Classification form styling */
     .classification-form {
-        background: white;
+        background: var(--bg);
         padding: 1.5rem;
         border-radius: 10px;
-        border: 1px solid #e9ecef;
+        border: 1px solid var(--border);
         margin-top: 1rem;
     }
 
     /* Progress bar custom styling */
     .stProgress > div > div > div {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary2) 100%);
     }
 
     /* Button styling */
@@ -85,34 +105,34 @@ def load_custom_css():
     }
 
     /* Sidebar styling */
-    .css-1d391kg {
-        background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    .css-1d391kg, .stSidebarContent {
+        background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
     }
 
     /* Radio button styling */
     .stRadio > div > label > div:first-child {
-        border: 2px solid #667eea;
+        border: 2px solid var(--primary);
     }
 
     .stRadio > div > label > div:first-child[data-checked="true"] {
-        background: #667eea;
+        background: var(--primary);
     }
 
     /* Metric styling */
     .metric-container {
-        background: white;
+        background: var(--bg);
         padding: 1rem;
         border-radius: 8px;
-        border: 1px solid #e9ecef;
+        border: 1px solid var(--border);
         text-align: center;
     }
 
     /* Form styling */
     .stForm {
-        background: #f8f9fa;
+        background: var(--bg2);
         padding: 1.5rem;
         border-radius: 10px;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--border);
     }
 
     /* Hide Streamlit branding */
@@ -122,18 +142,11 @@ def load_custom_css():
 
     /* Responsive design */
     @media (max-width: 768px) {
-        .main > div {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
+    .main > div { padding-left: 1rem; padding-right: 1rem; }
 
-        .song-card {
-            padding: 1rem;
-        }
+    .song-card { padding: 1rem; }
 
-        .classification-form {
-            padding: 1rem;
-        }
+    .classification-form { padding: 1rem; }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -142,10 +155,10 @@ def render_song_info_card(song):
     """Render song information in a styled card"""
     st.markdown(f"""
     <div class="song-card">
-        <h3 style="margin-top: 0; color: #333;">{song['title_songs_new']}</h3>
-        <p style="margin: 0.5rem 0; color: #666;"><strong>Artista:</strong> {song['artist']}</p>
-        <p style="margin: 0.5rem 0; color: #666;"><strong>Género:</strong> {song['genre']}</p>
-        {f'<p style="margin: 0.5rem 0; color: #666;"><strong>Año:</strong> {song["release_date"][:4]}</p>' if song.get('release_date') else ''}
+    <h3 style="margin-top: 0; color: var(--text);">{song['title_songs_new']}</h3>
+    <p style="margin: 0.5rem 0; color: var(--muted);"><strong>Artista:</strong> {song['artist']}</p>
+    <p style="margin: 0.5rem 0; color: var(--muted);"><strong>Género:</strong> {song['genre']}</p>
+    {f'<p style="margin: 0.5rem 0; color: var(--muted);"><strong>Año:</strong> {song["release_date"][:4]}</p>' if song.get('release_date') else ''}
     </div>
     """, unsafe_allow_html=True)
 

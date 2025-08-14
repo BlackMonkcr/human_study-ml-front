@@ -52,4 +52,6 @@ ehthumbs.db
 Thumbs.db
 
 # Streamlit
-.streamlit/
+# Keep secrets out of git, but allow config.toml to be committed
+.streamlit/secrets.toml
+.streamlit/credentials.toml
