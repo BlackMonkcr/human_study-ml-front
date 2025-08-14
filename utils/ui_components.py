@@ -5,26 +5,15 @@ def load_custom_css():
     st.markdown("""
     <style>
     :root {
+        /* Force light palette */
         --bg: #ffffff;
         --bg2: #f8f9fa;
-        --text: #262730;
-        --muted: #666666;
+        --text: #1f2328;
+        --muted: #525860;
         --primary: #667eea;
         --primary2: #764ba2;
-        --border: #e9ecef;
+        --border: #e3e5e8;
         --card-shadow: rgba(0,0,0,0.08);
-    }
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --bg: #0e1117;
-            --bg2: #161a23;
-            --text: #e6e6e6;
-            --muted: #c2c7cf;
-            --primary: #8ea2ff;
-            --primary2: #9a7dff;
-            --border: #2b2f3a;
-            --card-shadow: rgba(0,0,0,0.3);
-        }
     }
 
     .main > div { padding-top: 2rem; }
@@ -56,6 +45,17 @@ def load_custom_css():
         border-radius: 10px;
         border: 1px solid var(--border);
         margin-top: 1rem;
+    }
+    /* Ensure high-contrast text inside forms */
+    .stForm, .stForm p, .stForm label, .stForm span,
+    .stForm h1, .stForm h2, .stForm h3, .stForm h4, .stForm h5, .stForm h6,
+    .stForm .stMarkdown p {
+        color: var(--text) !important;
+    }
+    .stForm em, .stForm small { color: var(--muted) !important; }
+    /* Inputs */
+    .stTextArea textarea, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
+        color: var(--text) !important;
     }
 
     /* Progress bar custom styling */
