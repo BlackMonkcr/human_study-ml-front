@@ -54,8 +54,39 @@ def load_custom_css():
     }
     .stForm em, .stForm small { color: var(--muted) !important; }
     /* Inputs */
-    .stTextArea textarea, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
-        color: var(--text) !important;
+    .stTextArea textarea, .stNumberInput input, .stSelectbox div[data-baseweb="select"] { color: var(--text) !important; }
+
+    /* Input borders (text/password/number) */
+    div[data-baseweb="input"] {
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    div[data-baseweb="input"]:hover { border-color: var(--primary) !important; }
+    div[data-baseweb="input"]:focus-within {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.18) !important;
+    }
+
+    /* Select borders */
+    div[data-baseweb="select"] > div {
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    div[data-baseweb="select"]:hover > div { border-color: var(--primary) !important; }
+    div[data-baseweb="select"]:focus-within > div {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.18) !important;
+    }
+
+    /* Textarea border */
+    .stTextArea textarea {
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
     }
 
     /* Progress bar custom styling */
