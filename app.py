@@ -58,8 +58,19 @@ def configure_page():
     load_custom_css()
 
 def render_header():
-    """Render application header"""
+    """Render application header compacto"""
     st.markdown("""
+    <style>
+    .main-header h1 {
+        font-size: 1.7rem;
+        margin-bottom: 0.2rem;
+        margin-top: 0.5rem;
+    }
+    .main-header p {
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+    </style>
     <div class="main-header">
         <h1>🎵 Estudio de Clasificación Musical</h1>
         <p>Ayúdanos a clasificar el contenido de canciones en español</p>
@@ -253,13 +264,12 @@ def render_song_classification(song, song_index, total_songs):
     # Progress indicator
     render_progress_indicator(song_index, total_songs)
 
-    st.markdown("---")
-
-    # Song information
-    col1, col2 = st.columns([3, 1])
-
+    # Song information y reproductor juntos
+    col1, col2 = st.columns([6, 1])
+    
     with col1:
         render_song_info_card(song)
+        render_audio_player(song)  
 
     with col2:
         # Song metadata
@@ -277,40 +287,119 @@ def render_song_classification(song, song_index, total_songs):
             year = song['release_date'][:4]
             st.metric("Año", year)
 
-    # Audio player
-    render_audio_player(song)
-
     st.markdown("---")
+    st.subheader("📊 Clasificación")
 
-    # Classification form
-    submit_button, skip_button, prev_button, classification_data = render_classification_form(song, song_index)
+    # Checkbox FUERA del formulario
+    show_more = st.checkbox(
+        "Mostrar más preguntas",
+        value=True,
+        key=f"show_more_{song_index}"
+    )
 
-    # Handle form submissions
-    if submit_button:
-        if handle_classification_submission(song, classification_data):
-            # Move to next song
-            next_song_index = SessionManager.get_next_song_index()
-            if next_song_index is not None:
-                SessionManager.navigate_to_song(next_song_index)
+    with st.form(f"classification_form_{song_index}"):
+        # Primera pregunta
+        st.markdown("**¿Esta canción contiene contenido explícito?**")
+        st.caption("Considera lenguaje fuerte, violencia, referencias a drogas, etc.")
+        explicit_content = st.radio(
+            "Contenido explícito:",
+            ["No", "Sí", "No estoy seguro/a"],
+            key=f"explicit_{song_index}",
+            horizontal=True
+        )
+
+        # Si el usuario quiere, muestra el resto
+        if show_more:
+            st.markdown("**¿Esta canción contiene contenido sexual?**")
+            st.caption("Considera referencias sexuales explícitas, insinuaciones, etc.")
+            sexual_content = st.radio(
+                "Contenido sexual:",
+                ["No", "Sí", "No estoy seguro/a"],
+                key=f"sexual_{song_index}",
+                horizontal=True
+            )
+
+            confidence_level = st.select_slider(
+                "¿Qué tan seguro/a estás de tu clasificación?",
+                options=["Muy inseguro", "Inseguro", "Neutral", "Seguro", "Muy seguro"],
+                value="Neutral",
+                key=f"confidence_{song_index}"
+            )
+
+            comments = st.text_area(
+                "Comentarios adicionales (opcional):",
+                placeholder="Cualquier observación sobre la canción...",
+                key=f"comments_{song_index}",
+                max_chars=500
+            )
+        else:
+            sexual_content = None
+            confidence_level = None
+            comments = ""
+
+        # Form buttons
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            submit_button = st.form_submit_button(
+                "✅ Enviar Clasificación",
+                use_container_width=True,
+                type="primary"
+            )
+
+        with col2:
+            skip_button = st.form_submit_button(
+                "⏭️ Omitir Canción",
+                use_container_width=True
+            )
+
+        with col3:
+            if song_index > 0:
+                prev_button = st.form_submit_button(
+                    "⬅️ Anterior",
+                    use_container_width=True
+                )
             else:
-                st.session_state.study_completed = True
-            st.rerun()
+                prev_button = False
+
+        classification_data = {
+            'explicit_content': explicit_content,
+            'sexual_content': sexual_content,
+            'confidence_level': confidence_level,
+            'comments': comments,
+            'song_index': song_index
+        }
+
+    # Manejo de botones igual que antes...
+    # ... (resto del código de manejo de botones)
+
+    if submit_button:
+        # Guardar clasificación normal
+        classification_data['status'] = 'completed'
+        save_user_classification(SessionManager.get_user_data(), song, classification_data)
+        SessionManager.mark_song_completed(song_index, 'completed')
+        SessionManager.update_activity()
+        st.success("✅ Clasificación guardada exitosamente!")
+        time.sleep(1)
+        next_song_index = SessionManager.get_next_song_index()
+        if next_song_index is not None:
+            SessionManager.navigate_to_song(next_song_index)
+        else:
+            st.session_state.study_completed = True
+        st.rerun()
 
     elif skip_button:
-        # Save skip to DB for persistence
-        skip_data = {
-            'explicit_content': None,
-            'sexual_content': None,
-            'confidence_level': None,
-            'comments': 'skipped',
-            'song_index': song_index,
-            'status': 'skipped'
-        }
-        save_user_classification(SessionManager.get_user_data(), song, skip_data)
+        # Guardar como omitida
+        classification_data['status'] = 'skipped'
+        classification_data['explicit_content'] = None
+        classification_data['sexual_content'] = None
+        classification_data['confidence_level'] = None
+        classification_data['comments'] = 'skipped'
+        save_user_classification(SessionManager.get_user_data(), song, classification_data)
         SessionManager.mark_song_completed(song_index, 'skipped')
+        SessionManager.update_activity()
         st.info("⏭️ Canción omitida")
-
-        # Move to next song
+        time.sleep(1)
         next_song_index = SessionManager.get_next_song_index()
         if next_song_index is not None:
             SessionManager.navigate_to_song(next_song_index)
@@ -319,8 +408,10 @@ def render_song_classification(song, song_index, total_songs):
         st.rerun()
 
     elif prev_button:
-        if song_index > 0:
-            SessionManager.navigate_to_song(song_index - 1)
+        # Ir a la canción anterior
+        prev_index = song_index - 1
+        if prev_index >= 0:
+            SessionManager.navigate_to_song(prev_index)
             st.rerun()
 
 def render_sidebar(songs):

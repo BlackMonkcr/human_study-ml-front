@@ -38,6 +38,33 @@ def load_custom_css():
         box-shadow: 0 2px 4px var(--card-shadow);
     }
 
+    /* Compact song card styling */
+    .song-card-compact {
+        background: #f7f7fa;
+        padding: 0.3rem 0.8rem 0.3rem 0.8rem;
+        border-radius: 6px;
+        border-left: 3px solid #a78bfa;
+        margin-bottom: 0.3rem;
+        font-size: 0.93rem;
+        box-shadow: 0 1px 2px #eee;
+    }
+    .song-title-compact {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.05rem;
+        margin-top: 0.05rem;
+    }
+    .song-artist-compact {
+        font-size: 0.93rem;
+        color: #555;
+        margin-bottom: 0.05rem;
+    }
+    .song-meta-compact {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 0.05rem;
+    }
+
     /* Classification form styling */
     .classification-form {
         background: var(--bg);
@@ -183,13 +210,39 @@ def load_custom_css():
     """, unsafe_allow_html=True)
 
 def render_song_info_card(song):
-    """Render song information in a styled card"""
+    """Render compact song information card"""
     st.markdown(f"""
-    <div class="song-card">
-    <h3 style="margin-top: 0; color: var(--text);">{song['title_songs_new']}</h3>
-    <p style="margin: 0.5rem 0; color: var(--muted);"><strong>Artista:</strong> {song['artist']}</p>
-    <p style="margin: 0.5rem 0; color: var(--muted);"><strong>Género:</strong> {song['genre']}</p>
-    {f'<p style="margin: 0.5rem 0; color: var(--muted);"><strong>Año:</strong> {song["release_date"][:4]}</p>' if song.get('release_date') else ''}
+    <style>
+    .song-card-compact {{
+        background: #f7f7fa;
+        padding: 0.3rem 0.8rem 0.3rem 0.8rem;
+        border-radius: 6px;
+        border-left: 3px solid #a78bfa;
+        margin-bottom: 0.3rem;
+        font-size: 0.93rem;
+        box-shadow: 0 1px 2px #eee;
+    }}
+    .song-title-compact {{
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.05rem;
+        margin-top: 0.05rem;
+    }}
+    .song-artist-compact {{
+        font-size: 0.93rem;
+        color: #555;
+        margin-bottom: 0.05rem;
+    }}
+    .song-meta-compact {{
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 0.05rem;
+    }}
+    </style>
+    <div class="song-card-compact">
+        <div class="song-title-compact">{song['title_songs_new']}</div>
+        <div class="song-artist-compact">{song['artist']}</div>
+        {f'<div class="song-meta-compact">Año: {song["release_date"][:4]}</div>' if song.get('release_date') else ''}
     </div>
     """, unsafe_allow_html=True)
 
