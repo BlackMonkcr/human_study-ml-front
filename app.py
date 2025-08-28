@@ -139,30 +139,21 @@ def render_progress_indicator(current_index, total_songs):
     st.progress(progress, text=f"Canción {current_index + 1} de {total_songs}")
 
 def render_audio_player(song):
-    """Render audio/video player for the song"""
+    """Render solo el reproductor de YouTube usando id_yt"""
     st.subheader("🎧 Reproducir Canción")
 
-    # Try YouTube embed first (better audio quality)
-    if song.get('embed'):
-        st.components.v1.html(song['embed'], height=315)
-
-        # Also provide Spotify link as backup
-        if song.get('spotify_id'):
-            st.markdown(f"[🎵 Abrir en Spotify](https://open.spotify.com/track/{song['spotify_id']})")
-
-    elif song.get('spotify_id'):
-        # Fallback to Spotify embed
-        spotify_embed = f'''
-        <iframe style="border-radius:12px"
-                src="https://open.spotify.com/embed/track/{song['spotify_id']}?utm_source=generator"
-                width="100%" height="352" frameBorder="0" allowfullscreen=""
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"></iframe>
+    if song.get('id_yt'):
+        youtube_embed = f'''
+        <iframe width="100%" height="315"
+            src="https://www.youtube.com/embed/{song['id_yt']}"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
         '''
-        st.components.v1.html(spotify_embed, height=352)
-
+        st.components.v1.html(youtube_embed, height=315)
     else:
-        st.warning("⚠️ Audio no disponible para esta canción")
+        st.warning("⚠️ Video de YouTube no disponible para esta canción")
 
 def render_classification_form(song, song_index):
     """Render classification form"""

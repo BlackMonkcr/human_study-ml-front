@@ -105,20 +105,20 @@ class SessionManager:
 
     @staticmethod
     def get_next_song_index():
-        """Get the next song that hasn't been completed"""
+        """Get the next song that hasn't been completed or skipped"""
         total_songs = len(st.session_state.songs_data)
 
-        # Start from current index and look forward
-        for i in range(st.session_state.current_song_index, total_songs):
-            if i not in st.session_state.completed_songs:
+        # Start from current index + 1 and look forward
+        for i in range(st.session_state.current_song_index + 1, total_songs):
+            if i not in st.session_state.completed_songs and i not in st.session_state.skipped_songs:
                 return i
 
         # If no forward songs found, look backward
         for i in range(0, st.session_state.current_song_index):
-            if i not in st.session_state.completed_songs:
+            if i not in st.session_state.completed_songs and i not in st.session_state.skipped_songs:
                 return i
 
-        # All songs completed
+        # All songs completed or skipped
         return None
 
     @staticmethod
