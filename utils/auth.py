@@ -33,8 +33,13 @@ class AuthService:
 
         # Indexes for performance and uniqueness
         try:
-            self._users.create_index("username", unique=True)
-            self._users.create_index("email", unique=True, sparse=True)
+            # Enforce unique emails only (username no longer used)
+            # Use partial filter to ignore docs without an email
+            self._users.create_index(
+                "email",
+                unique=True,
+                partialFilterExpression={"email": {"$exists": True, "$type": "string"}}
+            )
         except Exception:
             # Ignore if already exists / insufficient privileges
             pass
@@ -49,22 +54,22 @@ class AuthService:
         except Exception:
             return False
 
-    def register_user(self, username_or_email: str, password: str, gender: Optional[str], age: Optional[int]) -> Dict[str, Any]:
-        """Create a user account. Returns dict with success, message, user."""
-        username = username_or_email.strip().lower()
-        email = username if "@" in username else None
+    def register_user(self, email: str, password: str, gender: Optional[str], age: Optional[int]) -> Dict[str, Any]:
+        """Create a user account with required unique email. Returns dict with success, message, user."""
+        email = (email or "").strip().lower()
 
         # Basic validation
-        if not username or not password:
-            return {"success": False, "message": "Usuario y contraseña requeridos"}
+        if not email or not password:
+            return {"success": False, "message": "Correo y contraseña requeridos"}
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return {"success": False, "message": "Correo inválido"}
 
-        existing = self._users.find_one({"$or": [{"username": username}, {"email": email}]}) if email else self._users.find_one({"username": username})
+        existing = self._users.find_one({"email": email})
         if existing:
-            return {"success": False, "message": "El usuario ya existe"}
+            return {"success": False, "message": "El correo ya está registrado"}
 
         hashed = self._hash_password(password)
         user_doc = {
-            "username": username,
             "email": email,
             "password_hash": hashed,
             "gender": gender,
@@ -77,12 +82,11 @@ class AuthService:
         user_doc["_id"] = res.inserted_id
         return {"success": True, "message": "Registro exitoso", "user": user_doc}
 
-    def login_user(self, username_or_email: str, password: str) -> Dict[str, Any]:
-        identifier = username_or_email.strip().lower()
-        query = {"$or": [{"username": identifier}, {"email": identifier}]}
-        user = self._users.find_one(query)
+    def login_user(self, email: str, password: str) -> Dict[str, Any]:
+        email = (email or "").strip().lower()
+        user = self._users.find_one({"email": email})
         if not user:
-            return {"success": False, "message": "Usuario no encontrado"}
+            return {"success": False, "message": "Correo no encontrado"}
 
         if not user.get("is_active", True):
             return {"success": False, "message": "Cuenta inactiva"}

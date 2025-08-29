@@ -419,7 +419,7 @@ def render_sidebar(songs):
     with st.sidebar:
         st.markdown("### 👤 Cuenta")
         if st.session_state.authenticated:
-            st.write(f"**Usuario:** {st.session_state.account.get('username')}")
+            st.write(f"**Correo:** {st.session_state.account.get('email')}")
             st.write(f"**ID:** `{st.session_state.user_id[:8]}...`")
             st.write(f"**Género:** {st.session_state.user_gender}")
             st.write(f"**Edad:** {st.session_state.user_age}")
@@ -491,11 +491,11 @@ def render_auth_panel():
 
     with tabs[0]:
         with st.form("login_form"):
-            identifier = st.text_input("Usuario o correo")
+            email = st.text_input("Correo electrónico")
             password = st.text_input("Contraseña", type="password")
             submit = st.form_submit_button("Ingresar")
             if submit:
-                res = auth.login_user(identifier, password)
+                res = auth.login_user(email, password)
                 if res.get("success"):
                     SessionManager.set_authenticated_user(res["user"])
                     st.success("Bienvenido/a")
@@ -505,7 +505,7 @@ def render_auth_panel():
 
     with tabs[1]:
         with st.form("register_form"):
-            identifier = st.text_input("Usuario o correo")
+            email = st.text_input("Correo electrónico")
             password = st.text_input("Contraseña", type="password")
             col1, col2 = st.columns(2)
             with col1:
@@ -515,7 +515,7 @@ def render_auth_panel():
             submit = st.form_submit_button("Crear cuenta")
             if submit:
                 g = None if gender == "Seleccionar..." else gender
-                res = auth.register_user(identifier, password, g, int(age))
+                res = auth.register_user(email, password, g, int(age))
                 if res.get("success"):
                     SessionManager.set_authenticated_user(res["user"])
                     st.success("Cuenta creada")

@@ -158,21 +158,32 @@ class SessionManager:
             'gender': st.session_state.user_gender,
             'age': st.session_state.user_age
         }
+    
+    @staticmethod
+    def get_user_id(user_email=None):
+        # Deprecated: user id is stored in session after authentication
+        return st.session_state.user_id
 
     @staticmethod
     def set_authenticated_user(user_doc):
         """Set account info after login/register."""
         st.session_state.authenticated = True
+        if not user_doc.get('email'):
+            st.error("El correo electrónico es obligatorio.")
+            return
+
         st.session_state.account = {
             'id': str(user_doc.get('_id')),
-            'username': user_doc.get('username'),
             'email': user_doc.get('email'),
         }
         st.session_state.user_id = st.session_state.account['id']
+        st.session_state.user_email = st.session_state.account['email']
         # Load profile data
         st.session_state.user_gender = user_doc.get('gender')
         st.session_state.user_age = user_doc.get('age')
-        st.session_state.user_info_collected = bool(st.session_state.user_gender is not None and st.session_state.user_age is not None)
+        st.session_state.user_info_collected = bool(
+            st.session_state.user_gender is not None and st.session_state.user_age is not None
+        )
         SessionManager.update_activity()
 
     @staticmethod
