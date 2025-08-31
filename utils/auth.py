@@ -71,6 +71,7 @@ class AuthService:
         hashed = self._hash_password(password)
         user_doc = {
             "email": email,
+            "username": email,
             "password_hash": hashed,
             "gender": gender,
             "age": age,
