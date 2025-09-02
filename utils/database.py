@@ -88,6 +88,7 @@ def save_user_classification(user_data, song_data, classification_data):
             # Classification data
             'explicit_content': classification_data['explicit_content'],
             'sexual_content': classification_data['sexual_content'],
+            'children_suitability': classification_data['children_suitability'],
             'comments': classification_data.get('comments', ''),
             'confidence_level': classification_data.get('confidence_level'),
 

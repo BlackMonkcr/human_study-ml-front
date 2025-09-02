@@ -191,6 +191,16 @@ def render_classification_form(song, song_index):
             horizontal=True
         )
 
+        # Content suitability for children
+        st.markdown("**¿Consideras esta canción apta para niños?**")
+        st.caption("Considera referencias sexuales explícitas, insinuaciones, etc.")
+        children_suitability = st.radio(
+            "Apta para niños:",
+            ["No", "Sí", "No estoy seguro/a"],
+            key=f"children_{song_index}",
+            horizontal=True
+        )
+
         # Confidence level
         confidence_level = st.select_slider(
             "¿Qué tan seguro/a estás de tu clasificación?",
@@ -235,6 +245,7 @@ def render_classification_form(song, song_index):
         return submit_button, skip_button, prev_button, {
             'explicit_content': explicit_content,
             'sexual_content': sexual_content,
+            'children_suitability': children_suitability,
             'confidence_level': confidence_level,
             'comments': comments,
             'song_index': song_index
@@ -266,10 +277,10 @@ def render_song_classification(song, song_index, total_songs):
 
     # Song information y reproductor juntos
     col1, col2 = st.columns([6, 1])
-    
+
     with col1:
         render_song_info_card(song)
-        render_audio_player(song)  
+        render_audio_player(song)
 
     with col2:
         # Song metadata
@@ -319,6 +330,16 @@ def render_song_classification(song, song_index, total_songs):
                 horizontal=True
             )
 
+            # Content suitability for children
+            st.markdown("**¿Consideras esta canción apta para niños?**")
+            st.caption("Considera la canción apta para niños, según la letra, referencias, etc.")
+            children_suitability = st.radio(
+                "Apta para niños:",
+                ["No", "Sí", "No estoy seguro/a"],
+                key=f"children_{song_index}",
+                horizontal=True
+            )
+
             confidence_level = st.select_slider(
                 "¿Qué tan seguro/a estás de tu clasificación?",
                 options=["Muy inseguro", "Inseguro", "Neutral", "Seguro", "Muy seguro"],
@@ -334,6 +355,7 @@ def render_song_classification(song, song_index, total_songs):
             )
         else:
             sexual_content = None
+            children_suitability = None
             confidence_level = None
             comments = ""
 
@@ -365,6 +387,7 @@ def render_song_classification(song, song_index, total_songs):
         classification_data = {
             'explicit_content': explicit_content,
             'sexual_content': sexual_content,
+            'children_suitability': children_suitability,
             'confidence_level': confidence_level,
             'comments': comments,
             'song_index': song_index
