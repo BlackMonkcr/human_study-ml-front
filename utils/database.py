@@ -2,6 +2,7 @@ import os
 from pymongo import MongoClient
 import streamlit as st
 from datetime import datetime
+import random 
 
 class DatabaseConnection:
     _instance = None
@@ -39,25 +40,38 @@ class DatabaseConnection:
         return None
 
 def get_filtered_songs():
-    """Get songs filtered for human study"""
+    """Get songs filtered for human study, favoring those with fewer responses"""
     db = DatabaseConnection().get_database()
     if db is None:
         return []
 
     try:
-        collection = db[os.getenv('SONGS_COLLECTION', 'songs_lang')]
+        songs_collection = db[os.getenv('SONGS_COLLECTION', 'songs_lang')]
+        responses_collection = db[os.getenv('RESPONSES_COLLECTION', 'user_responses')]
+
         filter_criteria = {
             "spotify_found": True,
             "is_human_study": True
         }
+        songs = list(songs_collection.find(filter_criteria))
 
-        # Sort by artist and title for consistent ordering
-        songs = list(collection.find(filter_criteria).sort([
-            ("artist", 1),
-            ("title_songs_new", 1)
-        ]))
+        pipeline = [
+            {"$group": {"_id": "$song_id", "count": {"$sum": 1}}}
+        ]
+        response_counts = {doc["_id"]: doc["count"] for doc in responses_collection.aggregate(pipeline)}
 
-        return songs
+        for song in songs:
+            song_id = str(song["_id"])
+            count = response_counts.get(song_id, 0)
+            song["_weight"] = 1 / (count + 1)
+
+        weighted_songs = sorted(
+            songs,
+            key=lambda s: random.random() * (1 / s["_weight"])  
+        )
+
+        return weighted_songs
+
     except Exception as e:
         st.error(f"Error fetching songs: {str(e)}")
         return []
